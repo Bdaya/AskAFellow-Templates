@@ -10,7 +10,7 @@ const reload = browserSync.reload;
 
 gulp.task("styles", () => {
   return gulp
-    .src("app/styles/*.scss")
+    .src("app/**/*.scss")
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe(
@@ -23,6 +23,7 @@ gulp.task("styles", () => {
         .on("error", $.sass.logError)
     )
     .pipe($.autoprefixer({ browsers: ["> 1%", "last 2 versions", "Firefox ESR"] }))
+    .pipe($.concat("main.css"))
     .pipe($.sourcemaps.write())
     .pipe(gulp.dest(".tmp/styles"))
     .pipe(reload({ stream: true }));
@@ -30,10 +31,11 @@ gulp.task("styles", () => {
 
 gulp.task("scripts", () => {
   return gulp
-    .src("app/scripts/**/*.js")
+    .src("app/**/**/*.js")
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.babel())
+    .pipe($.concat("main.js"))
     .pipe($.sourcemaps.write("."))
     .pipe(gulp.dest(".tmp/scripts"))
     .pipe(reload({ stream: true }));
@@ -55,12 +57,28 @@ const testLintOptions = {
   }
 };
 
-gulp.task("lint", lint("app/scripts/**/*.js"));
+gulp.task("lint", lint("app/**/*.js"));
 gulp.task("lint:test", lint("test/spec/**/*.js", testLintOptions));
+
+gulp.task("layout", () => {
+  return gulp
+    .src("app/**/*.html")
+    .pipe(
+      $.layout({
+        layout: "./app/layout.mustache"
+      })
+    )
+    .pipe(gulp.dest(".tmp"));
+});
 
 gulp.task("html", ["styles", "scripts"], () => {
   return gulp
-    .src("app/*.html")
+    .src("app/**/*.html")
+    .pipe(
+      $.layout({
+        layout: "./app/layout.mustache"
+      })
+    )
     .pipe($.useref({ searchPath: [".tmp", "app", "."] }))
     .pipe($.if("**/*.js", $.uglify()))
     .pipe($.if("**/*.css", $.cssnano()))
@@ -108,7 +126,7 @@ gulp.task("extras", () => {
 
 gulp.task("clean", del.bind(null, [".tmp", "dist"]));
 
-gulp.task("serve", ["styles", "scripts", "fonts"], () => {
+gulp.task("serve", ["styles", "scripts", "fonts", "layout"], () => {
   browserSync({
     notify: false,
     port: 9000,
@@ -120,10 +138,11 @@ gulp.task("serve", ["styles", "scripts", "fonts"], () => {
     }
   });
 
-  gulp.watch(["app/*.html", ".tmp/scripts/**/*.js", "app/images/**/*", ".tmp/fonts/**/*"]).on("change", reload);
+  gulp.watch(["app/**/*.html", ".tmp/scripts/**/*.js", "app/images/**/*", ".tmp/fonts/**/*"]).on("change", reload);
 
-  gulp.watch("app/styles/**/*.scss", ["styles"]);
-  gulp.watch("app/scripts/**/*.js", ["scripts"]);
+  gulp.watch("app/**/*.html", ["layout"]);
+  gulp.watch("app/**/*.scss", ["styles"]);
+  gulp.watch("app/**/*.js", ["scripts"]);
   gulp.watch("app/fonts/**/*", ["fonts"]);
   gulp.watch("bower.json", ["wiredep", "fonts"]);
 });
@@ -152,7 +171,7 @@ gulp.task("serve:test", ["scripts"], () => {
     }
   });
 
-  gulp.watch("app/scripts/**/*.js", ["scripts"]);
+  gulp.watch("app/**/*.js", ["scripts"]);
   gulp.watch("test/spec/**/*.js").on("change", reload);
   gulp.watch("test/spec/**/*.js", ["lint:test"]);
 });
@@ -160,7 +179,7 @@ gulp.task("serve:test", ["scripts"], () => {
 // inject bower components
 gulp.task("wiredep", () => {
   gulp
-    .src("app/styles/*.scss")
+    .src("app/**/*.scss")
     .pipe(
       wiredep({
         ignorePath: /^(\.\.\/)+/
@@ -179,7 +198,7 @@ gulp.task("wiredep", () => {
     .pipe(gulp.dest("app"));
 });
 
-gulp.task("build", ["lint", "html", "images", "fonts", "extras"], () => {
+gulp.task("build", ["html", "images", "fonts", "extras"], () => {
   return gulp.src("dist/**/*").pipe($.size({ title: "build", gzip: true }));
 });
 
