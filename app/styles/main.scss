@@ -52,3 +52,13 @@ $border-radius-small: 0px !default;
   margin-top: 5px;
   display: block;
 }
+
+.card__actions {
+  margin-bottom: 5px;
+}
+
+.card__action {
+  display: inline-block;
+  margin-right: 10px;
+  color: gray;
+}
