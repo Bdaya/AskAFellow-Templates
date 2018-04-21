@@ -1,0 +1,38 @@
+.buttons-list__title {
+  font-size: 18px;
+  color: gray;
+  margin-bottom: 15px;
+  margin-top: 0px;
+}
+
+.buttons-list__list {
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+.buttons-list__item {
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+}
+
+.buttons-list__btn {
+  width: 100%;
+  padding: 10px 20px;
+  text-align: left;
+  background: white;
+  border: 0px;
+  font-size: 18px;
+}
+
+select.buttons-list__btn {
+  appearance: none;
+  color: gray;
+  background: url("/images/select.png") center right 10px no-repeat white;
+  background-size: 30px;
+}
+
+.buttons-list__info {
+  float: right;
+  color: gray;
+}
